@@ -20,7 +20,7 @@ public class UserController {
     private int count = 1;
 
     @PostMapping
-    public ResponseEntity<User> addUser (@Valid @RequestBody User user) {
+    public ResponseEntity<User> addUser(@Valid @RequestBody User user) {
         try {
             user.isValidation();
 
@@ -39,12 +39,12 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> getUsers () {
+    public List<User> getUsers() {
         return new ArrayList<>(users.values());
     }
 
     @PutMapping
-    public ResponseEntity<User> updateUser (@Valid @RequestBody User user) {
+    public ResponseEntity<User> updateUser(@Valid @RequestBody User user) {
         try {
             user.isValidation();
 

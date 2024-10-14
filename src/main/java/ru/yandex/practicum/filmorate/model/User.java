@@ -13,12 +13,14 @@ import java.time.LocalDate;
 public class User {
     @EqualsAndHashCode.Exclude
     private int id;
-    @Email @NotBlank
+    @Email
+    @NotBlank
     private String email;
     @NotBlank
     private String login;
     private String name = "";
-    @EqualsAndHashCode.Exclude @Past
+    @EqualsAndHashCode.Exclude
+    @Past
     private LocalDate birthday;
 
     public void isValidation() {

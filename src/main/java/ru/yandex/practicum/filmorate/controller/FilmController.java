@@ -7,11 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
 @RestController
@@ -22,7 +20,7 @@ public class FilmController {
     private int count = 1;
 
     @PostMapping
-    public ResponseEntity<Film> addFilm (@Valid @RequestBody Film film) {
+    public ResponseEntity<Film> addFilm(@Valid @RequestBody Film film) {
         try {
             film.isValidation();
 
@@ -42,12 +40,12 @@ public class FilmController {
     }
 
     @GetMapping
-    public List<Film> getFilms () {
+    public List<Film> getFilms() {
         return new ArrayList<>(films.values());
     }
 
     @PutMapping
-    public ResponseEntity<Film> updateFilms (@Valid @RequestBody Film film) {
+    public ResponseEntity<Film> updateFilms(@Valid @RequestBody Film film) {
         try {
             film.isValidation();
 

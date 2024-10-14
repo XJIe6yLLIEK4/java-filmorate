@@ -22,14 +22,14 @@ public class Film {
     @PositiveOrZero
     private int duration;
 
-    public void isValidation () {
+    public void isValidation() {
         if (name.isBlank()) {
             throw new ValidationException("Название не может быть пустым");
         }
         if (description.length() > 200) {
             throw new ValidationException("Описание не может быть больше 200 символов");
         }
-        if (releaseDate.isBefore(LocalDate.of(1895, Month.DECEMBER,28))) {
+        if (releaseDate.isBefore(LocalDate.of(1895, Month.DECEMBER, 28))) {
             throw new ValidationException("Неверная дата релиза");
         }
         if (duration < 0) {

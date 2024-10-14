@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Month;
 

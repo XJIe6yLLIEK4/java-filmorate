@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.time.LocalDate;
@@ -25,14 +26,18 @@ public class Film {
         if (name.isBlank()) {
             throw new ValidationException("Название не может быть пустым");
         }
-        if (description.length() > 200) {
+        if (description == null) {
+            throw new ValidationException("Описание не может быть пустым");
+        } else if (description.length() > 200) {
             throw new ValidationException("Описание не может быть больше 200 символов");
         }
-        if (releaseDate.isBefore(LocalDate.of(1895, Month.DECEMBER, 28))) {
+        if (releaseDate == null) {
+            throw new ValidationException("Дата релиза не может быть пустой");
+        } else if (releaseDate.isBefore(LocalDate.of(1895, Month.DECEMBER, 28))) {
             throw new ValidationException("Неверная дата релиза");
         }
         if (duration < 0) {
-            throw new ValidationException("Продолжительность фильма не иожет быть отрицательной");
+            throw new ValidationException("Продолжительность фильма не может быть отрицательной");
         }
     }
 }

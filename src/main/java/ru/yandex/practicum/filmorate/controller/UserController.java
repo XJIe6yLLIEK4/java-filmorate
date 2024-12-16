@@ -40,6 +40,7 @@ public class UserController {
 
     @GetMapping
     public List<User> getUsers() {
+        log.info("Вызов getUsers");
         return new ArrayList<>(users.values());
     }
 

@@ -8,6 +8,8 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class Film {
@@ -20,6 +22,7 @@ public class Film {
     private LocalDate releaseDate;
     @PositiveOrZero
     private int duration;
+    private Set<User> likes = new HashSet<>();
 
     public void isValidation() {
         if (name.isBlank()) {

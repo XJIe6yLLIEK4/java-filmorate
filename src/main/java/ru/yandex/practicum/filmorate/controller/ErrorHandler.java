@@ -42,7 +42,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ErrorResponse NoContentException(final ContentNotException e) {
+    public ErrorResponse noContentException(final ContentNotException e) {
         return new ErrorResponse(e.getMessage());
     }
 

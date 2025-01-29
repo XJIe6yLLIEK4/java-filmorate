@@ -16,8 +16,8 @@ import java.util.Collection;
 @RequestMapping("/users")
 @Slf4j
 public class UserController {
-    UserStorage userStorage;
-    UserService userService;
+    private final UserStorage userStorage;
+    private  final UserService userService;
 
     @Autowired
     public UserController(UserStorage userStorage, UserService userService) {

@@ -8,12 +8,13 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
-    private final HashMap<Integer, Film> films = new HashMap<>();
+    private final Map<Integer, Film> films = new HashMap<>();
 
     @Override
     public Film putFilm(Film film) {
@@ -33,9 +34,6 @@ public class InMemoryFilmStorage implements FilmStorage {
         film.isValidation();
         film.setId(getNextId());
 
-        if (films.containsKey(film.getId())) {
-            throw new ValidationException("Фильм с таким ID уже существует: " + film.getId());
-        }
         films.put(film.getId(), film);
         return film;
     }

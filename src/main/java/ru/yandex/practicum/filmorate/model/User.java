@@ -16,17 +16,14 @@ import java.util.Set;
 @Data
 public class User {
     private int id;
-    @Email
-    @NotBlank
+    @NotBlank @Email
     private String email;
     @NotBlank
     private String login;
     private String name;
     @Past
     private LocalDate birthday;
-    @JsonIgnore
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
+    @ToString.Exclude @EqualsAndHashCode.Exclude @JsonIgnore
     private Set<User> friends = new HashSet<>();
 
     public void isValidation() {

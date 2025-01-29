@@ -8,22 +8,19 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
 @Component
 public class InMemoryUserStorage implements UserStorage {
-    private final HashMap<Integer, User> users = new HashMap<>();
+    private final Map<Integer, User> users = new HashMap<>();
 
     @Override
     public User postUser(User user) {
 
         user.isValidation();
         user.setId(getNextId());
-
-        if (users.containsKey(user.getId())) {
-            throw new ValidationException("Пользователь с таким ID уже существует: " + user.getId());
-        }
 
         users.put(user.getId(), user);
         return user;

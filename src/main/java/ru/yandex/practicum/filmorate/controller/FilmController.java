@@ -2,63 +2,68 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/films")
 @Slf4j
 public class FilmController {
-    private final HashMap<Integer, Film> films = new HashMap<>();
-    private int count = 1;
+
+    private final FilmStorage filmStorage;
+    private final FilmService filmService;
+
+    @Autowired
+    public FilmController(FilmStorage filmStorage, FilmService filmService) {
+        this.filmStorage = filmStorage;
+        this.filmService = filmService;
+    }
 
     @PostMapping
-    public ResponseEntity<Film> addFilm(@Valid @RequestBody Film film) {
-        try {
-            film.isValidation();
-
-            if (films.containsKey(film.getId())) {
-                log.warn("Фильм с таким ID уже существует: {}", film.getId());
-                return new ResponseEntity<>(film, HttpStatus.BAD_REQUEST);
-            }
-
-            film.setId(count);
-            films.put(count, film);
-            count++;
-            return new ResponseEntity<>(film, HttpStatus.CREATED);
-        } catch (ValidationException e) {
-            log.warn("Ошибка валидации: {}", e.getMessage());
-            return new ResponseEntity<>(film, HttpStatus.BAD_REQUEST);
-        }
+    @ResponseStatus(HttpStatus.CREATED)
+    public Film addFilm(@Valid @RequestBody Film film) {
+        return filmStorage.postFilm(film);
     }
 
     @GetMapping
-    public List<Film> getFilms() {
-        log.info("Вызов getFilms");
-        return new ArrayList<>(films.values());
+    @ResponseStatus(HttpStatus.OK)
+    public Collection<Film> getFilms() {
+        return filmStorage.getFilms();
+    }
+
+    @GetMapping("/{filmId}")
+    @ResponseStatus(HttpStatus.OK)
+    public Optional<Film> getFilmById(@PathVariable int filmId) {
+        return filmStorage.getFilmById(filmId);
+    }
+
+    @GetMapping("/popular")
+    @ResponseStatus(HttpStatus.OK)
+    public Collection<Film> getTopFilms(@RequestParam(defaultValue = "10") int count) {
+        return filmService.getTopFilms(count);
     }
 
     @PutMapping
-    public ResponseEntity<Film> updateFilms(@Valid @RequestBody Film film) {
-        try {
-            film.isValidation();
+    @ResponseStatus(HttpStatus.OK)
+    public Film updateFilms(@Valid @RequestBody Film film) {
+        return filmStorage.putFilm(film);
+    }
 
-            if (films.containsKey(film.getId())) {
-                films.put(film.getId(), film);
-                return new ResponseEntity<>(film, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(film, HttpStatus.NOT_FOUND);
-            }
-        } catch (ValidationException e) {
-            log.warn("Ошибка валидации: {}", e.getMessage());
-            return new ResponseEntity<>(film, HttpStatus.BAD_REQUEST);
-        }
+    @PutMapping("/{id}/like/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public Film addLikeFilm(@PathVariable int id, @PathVariable int userId) {
+        return filmService.addLike(id, userId);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public Film deleteLikeFilm(@PathVariable int id, @PathVariable int userId) {
+        return filmService.deleteLike(id, userId);
     }
 }

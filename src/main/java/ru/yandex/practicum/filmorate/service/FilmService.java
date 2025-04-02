@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ContentNotException;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
@@ -9,8 +10,8 @@ import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.List;
@@ -22,11 +23,15 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final FilmDbStorage filmDbStorage; // Для прямого доступа к методам addLike/removeLike
 
     @Autowired
-    public FilmService(InMemoryFilmStorage filmStorage, UserStorage userStorage) {
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
+                       @Qualifier("userDbStorage") UserStorage userStorage,
+                       @Qualifier("filmDbStorage") FilmDbStorage filmDbStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
+        this.filmDbStorage = filmDbStorage;
     }
 
     public Film addLike(int filmId, int userId) {
@@ -34,9 +39,13 @@ public class FilmService {
                 .orElseThrow(() -> new FilmNotFoundException(filmId));
         User user = userStorage.getUserById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
-        if (!film.getLikes().add(user)) {
+
+        if (film.getLikes().contains(user)) {
             throw new ValidationException("Пользователь " + user.getId() + " уже оценил этот фильм");
         }
+
+        filmDbStorage.addLike(filmId, userId);
+        film.getLikes().add(user);
         return film;
     }
 
@@ -45,9 +54,13 @@ public class FilmService {
                 .orElseThrow(() -> new FilmNotFoundException(filmId));
         User user = userStorage.getUserById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
-        if (!film.getLikes().remove(user)) {
+
+        if (!film.getLikes().contains(user)) {
             throw new ContentNotException("Пользователь " + user.getId() + " еще не оценил этот фильм");
         }
+
+        filmDbStorage.removeLike(filmId, userId);
+        film.getLikes().remove(user);
         return film;
     }
 

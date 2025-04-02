@@ -21,6 +21,8 @@ public class Film {
     @EqualsAndHashCode.Exclude
     private String description;
     private LocalDate releaseDate;
+    private String genre;
+    private String rating;
     @PositiveOrZero
     private int duration;
     @ToString.Exclude @EqualsAndHashCode.Exclude @JsonIgnore

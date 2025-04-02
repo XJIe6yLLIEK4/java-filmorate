@@ -25,7 +25,7 @@ public class User {
     private LocalDate birthday;
     @ToString.Exclude @EqualsAndHashCode.Exclude @JsonIgnore
     private Set<User> friends = new HashSet<>();
-
+    
     public void isValidation() {
         if (name == null || name.isBlank()) {
             name = login;

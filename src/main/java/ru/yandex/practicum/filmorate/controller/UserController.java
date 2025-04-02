@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
@@ -17,10 +18,10 @@ import java.util.Collection;
 @Slf4j
 public class UserController {
     private final UserStorage userStorage;
-    private  final UserService userService;
+    private final UserService userService;
 
     @Autowired
-    public UserController(UserStorage userStorage, UserService userService) {
+    public UserController(@Qualifier("userDbStorage") UserStorage userStorage, UserService userService) {
         this.userStorage = userStorage;
         this.userService = userService;
     }

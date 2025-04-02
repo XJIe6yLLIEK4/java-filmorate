@@ -13,7 +13,6 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
@@ -68,7 +67,7 @@ public class UserDbStorage implements UserStorage {
     public Collection<User> getUsers() {
         String sql = "SELECT * FROM Users";
         Collection<User> users = jdbcTemplate.query(sql, this::mapRowToUser);
-        users.forEach(this::loadFriends); // Загружаем друзей для каждого пользователя
+        users.forEach(this::loadFriends);
         return users;
     }
 
@@ -78,11 +77,10 @@ public class UserDbStorage implements UserStorage {
         Optional<User> user = jdbcTemplate.query(sql, this::mapRowToUser, id)
                 .stream()
                 .findFirst();
-        user.ifPresent(this::loadFriends); // Загружаем друзей, если пользователь найден
+        user.ifPresent(this::loadFriends);
         return user;
     }
 
-    // Метод для загрузки друзей пользователя
     private void loadFriends(User user) {
         String sql = "SELECT u.* FROM Users u " +
                 "JOIN User_friends uf ON u.id = uf.friend_id " +
@@ -90,13 +88,11 @@ public class UserDbStorage implements UserStorage {
         user.setFriends(new HashSet<>(jdbcTemplate.query(sql, this::mapRowToUser, user.getId())));
     }
 
-    // Добавление друга в таблицу User_friends
     public void addFriend(int userId, int friendId) {
         String sql = "INSERT INTO User_friends (user_id, friend_id, status) VALUES (?, ?, ?)";
         jdbcTemplate.update(sql, userId, friendId, "CONFIRMED");
     }
 
-    // Удаление друга из таблицы User_friends
     public void removeFriend(int userId, int friendId) {
         String sql = "DELETE FROM User_friends WHERE user_id = ? AND friend_id = ?";
         jdbcTemplate.update(sql, userId, friendId);

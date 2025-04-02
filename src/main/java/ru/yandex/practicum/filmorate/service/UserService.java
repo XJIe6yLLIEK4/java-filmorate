@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserStorage userStorage;
-    private final UserDbStorage userDbStorage; // Для прямого доступа к методам addFriend/removeFriend
+    private final UserDbStorage userDbStorage;
 
     @Autowired
     public UserService(@Qualifier("userDbStorage") UserStorage userStorage,
@@ -39,7 +39,7 @@ public class UserService {
         }
 
         userDbStorage.addFriend(userId1, userId2);
-        userDbStorage.addFriend(userId2, userId1); // Дружба взаимная
+        userDbStorage.addFriend(userId2, userId1);
         user1.getFriends().add(user2);
         user2.getFriends().add(user1);
         return user1;
@@ -56,7 +56,7 @@ public class UserService {
         }
 
         userDbStorage.removeFriend(userId1, userId2);
-        userDbStorage.removeFriend(userId2, userId1); // Удаляем взаимную дружбу
+        userDbStorage.removeFriend(userId2, userId1);
         user1.getFriends().remove(user2);
         user2.getFriends().remove(user1);
         return user1;

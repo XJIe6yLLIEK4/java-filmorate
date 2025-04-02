@@ -23,7 +23,7 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
-    private final FilmDbStorage filmDbStorage; // Для прямого доступа к методам addLike/removeLike
+    private final FilmDbStorage filmDbStorage;
 
     @Autowired
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,

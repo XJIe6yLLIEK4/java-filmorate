@@ -73,7 +73,7 @@ public class FilmDbStorage implements FilmStorage {
     public Collection<Film> getFilms() {
         String sql = "SELECT * FROM Films";
         Collection<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm);
-        films.forEach(this::loadLikes); // Загружаем лайки для каждого фильма
+        films.forEach(this::loadLikes);
         return films;
     }
 
@@ -83,11 +83,10 @@ public class FilmDbStorage implements FilmStorage {
         Optional<Film> film = jdbcTemplate.query(sql, this::mapRowToFilm, filmId)
                 .stream()
                 .findFirst();
-        film.ifPresent(this::loadLikes); // Загружаем лайки, если фильм найден
+        film.ifPresent(this::loadLikes);
         return film;
     }
 
-    // Метод для загрузки лайков фильма
     private void loadLikes(Film film) {
         String sql = "SELECT u.* FROM Users u " +
                 "JOIN film_likes fl ON u.id = fl.like_user_id " +
@@ -95,13 +94,11 @@ public class FilmDbStorage implements FilmStorage {
         film.setLikes(new HashSet<>(jdbcTemplate.query(sql, this::mapRowToUser, film.getId())));
     }
 
-    // Добавление лайка в таблицу film_likes
     public void addLike(int filmId, int userId) {
         String sql = "INSERT INTO film_likes (film_id, like_user_id) VALUES (?, ?)";
         jdbcTemplate.update(sql, filmId, userId);
     }
 
-    // Удаление лайка из таблицы film_likes
     public void removeLike(int filmId, int userId) {
         String sql = "DELETE FROM film_likes WHERE film_id = ? AND like_user_id = ?";
         jdbcTemplate.update(sql, filmId, userId);

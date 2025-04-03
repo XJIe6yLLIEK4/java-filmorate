@@ -6,15 +6,22 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ContentNotException;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exception.GenreNotFoundException;
+import ru.yandex.practicum.filmorate.exception.MpaNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.GenreDbStorage;
+import ru.yandex.practicum.filmorate.storage.MpaDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -24,14 +31,64 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
     private final FilmDbStorage filmDbStorage;
+    private final GenreDbStorage genreDbStorage;
+    private final MpaDbStorage mpaDbStorage;
 
     @Autowired
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
                        @Qualifier("userDbStorage") UserStorage userStorage,
-                       @Qualifier("filmDbStorage") FilmDbStorage filmDbStorage) {
+                       @Qualifier("filmDbStorage") FilmDbStorage filmDbStorage,
+                       GenreDbStorage genreDbStorage,
+                       MpaDbStorage mpaDbStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.filmDbStorage = filmDbStorage;
+        this.genreDbStorage = genreDbStorage;
+        this.mpaDbStorage = mpaDbStorage;
+    }
+
+    public Film create(Film film) {
+        if (film.getMpa() != null) {
+            mpaDbStorage.getMpaById(film.getMpa().getId())
+                    .orElseThrow(() -> new MpaNotFoundException(film.getMpa().getId()));
+        }
+        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
+            Set<Integer> uniqueGenreIds = film.getGenres().stream()
+                    .map(Genre::getId)
+                    .collect(Collectors.toSet());
+            List<Genre> uniqueGenres = uniqueGenreIds.stream()
+                    .map(id -> genreDbStorage.getGenreById(id)
+                            .orElseThrow(() -> new GenreNotFoundException(id)))
+                    .sorted(Comparator.comparing(Genre::getId))
+                    .toList();
+            film.setGenres(uniqueGenres);
+        }
+
+        return filmStorage.postFilm(film);
+    }
+
+    public Film update(Film film) {
+        filmStorage.getFilmById(film.getId())
+                .orElseThrow(() -> new FilmNotFoundException(film.getId()));
+
+        if (film.getMpa() != null) {
+            mpaDbStorage.getMpaById(film.getMpa().getId())
+                    .orElseThrow(() -> new MpaNotFoundException(film.getMpa().getId()));
+        }
+        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
+            // Удаляем дубликаты жанров
+            Set<Integer> uniqueGenreIds = film.getGenres().stream()
+                    .map(Genre::getId)
+                    .collect(Collectors.toSet());
+            List<Genre> uniqueGenres = uniqueGenreIds.stream()
+                    .map(id -> genreDbStorage.getGenreById(id)
+                            .orElseThrow(() -> new GenreNotFoundException(id)))
+                    .sorted(Comparator.comparing(Genre::getId))
+                    .toList();
+            film.setGenres(uniqueGenres);
+        }
+
+        return filmStorage.putFilm(film);
     }
 
     public Film addLike(int filmId, int userId) {
@@ -69,7 +126,11 @@ public class FilmService {
                 .sorted((film1, film2) -> {
                     int likes1 = film1.getLikes() != null ? film1.getLikes().size() : 0;
                     int likes2 = film2.getLikes() != null ? film2.getLikes().size() : 0;
-                    return Integer.compare(likes2, likes1);
+                    int compareByLikes = Integer.compare(likes2, likes1);
+                    if (compareByLikes == 0) {
+                        return Integer.compare(film1.getId(), film2.getId());
+                    }
+                    return compareByLikes;
                 })
                 .limit(count)
                 .collect(Collectors.toList());

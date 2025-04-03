@@ -14,7 +14,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -66,9 +68,11 @@ public class UserDbStorage implements UserStorage {
     @Override
     public Collection<User> getUsers() {
         String sql = "SELECT * FROM Users";
-        Collection<User> users = jdbcTemplate.query(sql, this::mapRowToUser);
+        List<User> users = jdbcTemplate.query(sql, this::mapRowToUser);
         users.forEach(this::loadFriends);
-        return users;
+        return users.stream()
+                .sorted(Comparator.comparing(User::getId))
+                .toList();
     }
 
     @Override

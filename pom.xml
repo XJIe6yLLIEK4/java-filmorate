@@ -64,6 +64,26 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>3.2.0</version> <!-- Убедитесь, что используете актуальную версию -->
+				<configuration>
+					<configLocation>checkstyle.xml</configLocation> <!-- Путь к вашему файлу конфигурации -->
+					<encoding>UTF-8</encoding>
+					<consoleOutput>true</consoleOutput>
+					<failsOnError>true</failsOnError> <!-- Делает сборку неудачной при наличии ошибок -->
+					<linkXRef>false</linkXRef>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal> <!-- Запускает проверку во время сборки -->
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 

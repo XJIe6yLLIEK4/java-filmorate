@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.exception.ContentNotException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -11,8 +12,10 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.util.Comparator;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.LinkedHashSet;
 
 @Slf4j
 @Service
@@ -28,6 +31,7 @@ public class UserService {
         this.userDbStorage = userDbStorage;
     }
 
+    @Transactional
     public User addFriends(int userId1, int userId2) {
         User user1 = userStorage.getUserById(userId1)
                 .orElseThrow(() -> new UserNotFoundException(userId1));
@@ -39,12 +43,11 @@ public class UserService {
         }
 
         userDbStorage.addFriend(userId1, userId2);
-        userDbStorage.addFriend(userId2, userId1);
         user1.getFriends().add(user2);
-        user2.getFriends().add(user1);
         return user1;
     }
 
+    @Transactional
     public User deleteFriends(int userId1, int userId2) {
         User user1 = userStorage.getUserById(userId1)
                 .orElseThrow(() -> new UserNotFoundException(userId1));
@@ -56,9 +59,7 @@ public class UserService {
         }
 
         userDbStorage.removeFriend(userId1, userId2);
-        userDbStorage.removeFriend(userId2, userId1);
         user1.getFriends().remove(user2);
-        user2.getFriends().remove(user1);
         return user1;
     }
 
@@ -69,6 +70,7 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException(userId2));
         return user1.getFriends().stream()
                 .filter(friend -> user2.getFriends().contains(friend))
-                .collect(Collectors.toSet());
+                .sorted(Comparator.comparing(User::getId))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 }

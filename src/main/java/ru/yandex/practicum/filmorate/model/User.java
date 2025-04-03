@@ -1,27 +1,30 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class User {
-    @EqualsAndHashCode.Exclude
     private int id;
-    @Email
-    @NotBlank
+    @NotBlank @Email
     private String email;
     @NotBlank
     private String login;
     private String name;
-    @EqualsAndHashCode.Exclude
     @Past
     private LocalDate birthday;
+    @ToString.Exclude @EqualsAndHashCode.Exclude @JsonIgnore
+    private Set<User> friends = new HashSet<>();
 
     public void isValidation() {
         if (name == null || name.isBlank()) {

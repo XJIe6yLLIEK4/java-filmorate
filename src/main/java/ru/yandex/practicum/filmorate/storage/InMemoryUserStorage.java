@@ -5,10 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -48,6 +45,11 @@ public class InMemoryUserStorage implements UserStorage {
             throw new UserNotFoundException(id);
         }
         return Optional.of(users.get(id));
+    }
+
+    @Override
+    public Set<User> getCommonFriends(int userId1, int userId2) {
+        return Set.of();
     }
 
     private int getNextId() {

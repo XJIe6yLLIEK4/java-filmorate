@@ -1,8 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -10,42 +9,48 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
 public class Film {
     private int id;
-    @NotBlank
+
+    @NotBlank(message = "Название фильма не может быть пустым")
     private String name;
-    @EqualsAndHashCode.Exclude
+
+    @Size(max = 200, message = "Описание фильма не может превышать 200 символов")
     private String description;
+
     private LocalDate releaseDate;
-    @PositiveOrZero
+
+    private List<Genre> genres = new ArrayList<>();
+
+    private Mpa mpa;
+
+    @Positive(message = "Продолжительность фильма должна быть положительной")
     private int duration;
-    @ToString.Exclude @EqualsAndHashCode.Exclude @JsonIgnore
     private Set<User> likes = new HashSet<>();
-    @ToString.Exclude @EqualsAndHashCode.Exclude @JsonIgnore
-    private final int maxDuration = 200;
-    @ToString.Exclude @EqualsAndHashCode.Exclude @JsonIgnore
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
     private final LocalDate minReleaseDate = LocalDate.of(1895, Month.DECEMBER, 28);
 
+
     public void isValidation() {
-        if (name.isBlank()) {
-            throw new ValidationException("Название не может быть пустым");
+        if (this.getName() == null || this.getName().isBlank()) {
+            throw new ValidationException("Название фильма не может быть пустым");
         }
-        if (description == null) {
-            throw new ValidationException("Описание не может быть пустым");
-        } else if (description.length() > maxDuration) {
-            throw new ValidationException("Описание не может быть больше 200 символов");
+        if (this.getDescription() != null && this.getDescription().length() > 200) {
+            throw new ValidationException("Описание фильма не может превышать 200 символов");
         }
-        if (releaseDate == null) {
-            throw new ValidationException("Дата релиза не может быть пустой");
-        } else if (releaseDate.isBefore(minReleaseDate)) {
-            throw new ValidationException("Неверная дата релиза");
+        if (this.getReleaseDate() != null && this.getReleaseDate().isBefore(this.getMinReleaseDate())) {
+            throw new ValidationException("Дата релиза не может быть раньше 1895.10.28");
         }
-        if (duration < 0) {
-            throw new ValidationException("Продолжительность фильма не может быть отрицательной");
+        if (this.getDuration() <= 0) {
+            throw new ValidationException("Продолжительность фильма должна быть положительной");
         }
     }
 }

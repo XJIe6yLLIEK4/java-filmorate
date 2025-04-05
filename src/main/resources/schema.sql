@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS film_genres (
     FOREIGN KEY (genre_id) REFERENCES Genres(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS User_friends (
+CREATE TABLE IF NOT EXISTS user_friends (
     user_id INTEGER NOT NULL,
     friend_id INTEGER NOT NULL,
     status VARCHAR(20),
@@ -51,12 +51,7 @@ CREATE TABLE IF NOT EXISTS film_likes (
     FOREIGN KEY (like_user_id) REFERENCES Users(id) ON DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS idx_user_friends_user_id ON User_friends(user_id);
-CREATE INDEX IF NOT EXISTS idx_user_friends_friend_id ON User_friends(friend_id);
-CREATE INDEX IF NOT EXISTS idx_film_likes_film_id ON film_likes(film_id);
-CREATE INDEX IF NOT EXISTS idx_film_likes_user_id ON film_likes(like_user_id);
 
--- Добавление начальных данных
 INSERT INTO Genres (name) VALUES ('Комедия');
 INSERT INTO Genres (name) VALUES ('Драма');
 INSERT INTO Genres (name) VALUES ('Мультфильм');

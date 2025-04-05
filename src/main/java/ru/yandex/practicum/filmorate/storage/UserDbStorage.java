@@ -13,11 +13,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -93,13 +89,30 @@ public class UserDbStorage implements UserStorage {
     }
 
     public void addFriend(int userId, int friendId) {
-        String sql = "INSERT INTO User_friends (user_id, friend_id, status) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO user_friends (user_id, friend_id, status) VALUES (?, ?, ?)";
         jdbcTemplate.update(sql, userId, friendId, "CONFIRMED");
     }
 
     public void removeFriend(int userId, int friendId) {
-        String sql = "DELETE FROM User_friends WHERE user_id = ? AND friend_id = ?";
+        String sql = "DELETE FROM user_friends WHERE user_id = ? AND friend_id = ?";
         jdbcTemplate.update(sql, userId, friendId);
+    }
+
+    public Set<User> getCommonFriends(int userId1, int userId2) {
+        String sql = "SELECT u.* " +
+                "FROM Users u " +
+                "WHERE u.id IN (" +
+                "    SELECT uf1.friend_id " +
+                "    FROM user_friends uf1 " +
+                "    WHERE uf1.user_id = ? " +
+                "    AND uf1.friend_id IN (" +
+                "        SELECT uf2.friend_id " +
+                "        FROM User_friends uf2 " +
+                "        WHERE uf2.user_id = ?" +
+                "    )" +
+                ") " +
+                "ORDER BY u.id ASC";
+        return new HashSet<>(jdbcTemplate.query(sql, this::mapRowToUser, userId1, userId2));
     }
 
     private User mapRowToUser(ResultSet rs, int rowNum) throws SQLException {

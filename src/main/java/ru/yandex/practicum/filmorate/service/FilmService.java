@@ -76,7 +76,6 @@ public class FilmService {
                     .orElseThrow(() -> new MpaNotFoundException(film.getMpa().getId()));
         }
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
-            // Удаляем дубликаты жанров
             Set<Integer> uniqueGenreIds = film.getGenres().stream()
                     .map(Genre::getId)
                     .collect(Collectors.toSet());
@@ -122,17 +121,9 @@ public class FilmService {
     }
 
     public List<Film> getTopFilms(int count) {
-        return filmStorage.getFilms().stream()
-                .sorted((film1, film2) -> {
-                    int likes1 = film1.getLikes() != null ? film1.getLikes().size() : 0;
-                    int likes2 = film2.getLikes() != null ? film2.getLikes().size() : 0;
-                    int compareByLikes = Integer.compare(likes2, likes1);
-                    if (compareByLikes == 0) {
-                        return Integer.compare(film1.getId(), film2.getId());
-                    }
-                    return compareByLikes;
-                })
-                .limit(count)
-                .collect(Collectors.toList());
+        if (count <= 0) {
+            throw new ValidationException("Количество фильмов должно быть положительным");
+        }
+        return filmDbStorage.getTopFilms(count);
     }
 }

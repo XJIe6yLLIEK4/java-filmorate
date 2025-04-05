@@ -151,6 +151,19 @@ public class FilmDbStorage implements FilmStorage {
         return film;
     }
 
+    @Override
+    public List<Film> getTopFilms(int count) {
+        String sql = "SELECT f.*, COUNT(fl.like_user_id) as like_count " +
+                "FROM Films f " +
+                "LEFT JOIN film_likes fl ON f.id = fl.film_id " +
+                "GROUP BY f.id " +
+                "ORDER BY like_count DESC, f.id ASC " +
+                "LIMIT ?";
+        List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, count);
+        films.forEach(this::loadGenresAndLikes);
+        return films;
+    }
+
     private void loadGenresAndLikes(Film film) {
         film.setGenres(genreDbStorage.getGenresByFilmId(film.getId()));
 

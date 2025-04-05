@@ -12,10 +12,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.Comparator;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.LinkedHashSet;
 
 @Slf4j
 @Service
@@ -64,13 +61,10 @@ public class UserService {
     }
 
     public Set<User> getCommonFriends(int userId1, int userId2) {
-        User user1 = userStorage.getUserById(userId1)
+        userStorage.getUserById(userId1)
                 .orElseThrow(() -> new UserNotFoundException(userId1));
-        User user2 = userStorage.getUserById(userId2)
+        userStorage.getUserById(userId2)
                 .orElseThrow(() -> new UserNotFoundException(userId2));
-        return user1.getFriends().stream()
-                .filter(friend -> user2.getFriends().contains(friend))
-                .sorted(Comparator.comparing(User::getId))
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+        return userDbStorage.getCommonFriends(userId1, userId2);
     }
 }
